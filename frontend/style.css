@@ -1,0 +1,35 @@
+* {
+    font-family: Arial, Helvetica, sans-serif;
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    padding: 20px;
+}
+
+.filmes {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+}
+
+.filme {
+    width: 300px;
+    min-height: 200px;
+    border: 1px solid black;
+    padding: 20px;
+}
+
+.filme h2 {
+    margin-top: 0;
+    font-size: 1.2rem;
+}
+
+.aviso {
+    font-style: italic;
+}
+
+.erro {
+    color: #b00020;
+}
