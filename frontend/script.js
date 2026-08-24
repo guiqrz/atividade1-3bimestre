@@ -1,6 +1,6 @@
 // URL do backend.
 // Local: "http://localhost:3067" | Produção: URL do backend publicado na Vercel.
-const API_URL = "http://localhost:3067"
+const API_URL = "https://atividade1-3bimestre-delta.vercel.app"
 
 const sectionFilmes = document.querySelector(".filmes")
 

@@ -113,5 +113,5 @@ Depois importe o mesmo repositório num projeto novo, defina o *Root Directory* 
 | O quê | Link |
 |---|---|
 | Repositório | _(preencher)_ |
-| Backend na Vercel | _(preencher)_ |
+| Backend na Vercel | https://atividade1-3bimestre-delta.vercel.app |
 | Frontend na Vercel | _(preencher)_ |
