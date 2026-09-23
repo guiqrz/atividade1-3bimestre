@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css">
+    <title>Cadastrar Filme - Guilherme Queiroz</title>
+</head>
+<body>
+    <header class="topo">
+        <h1>Cadastrar filme</h1>
+        <a class="botao" href="index.html">Voltar</a>
+    </header>
+
+    <form class="formulario" id="formCadastro">
+        <label for="title">Título</label>
+        <input type="text" id="title" name="title" required>
+
+        <label for="gender">Gênero</label>
+        <input type="text" id="gender" name="gender" required>
+
+        <label for="duration">Duração (minutos)</label>
+        <input type="number" id="duration" name="duration" min="1" required>
+
+        <label for="ageRating">Classificação indicativa (idade, 0 = livre)</label>
+        <input type="number" id="ageRating" name="ageRating" min="0" required>
+
+        <button type="submit" class="botao botao-primario">Cadastrar</button>
+        <p class="mensagem" id="mensagem"></p>
+    </form>
+
+    <script src="cadastro.js"></script>
+</body>
+</html>

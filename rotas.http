@@ -1,0 +1,27 @@
+### Listar todos os filmes
+GET http://localhost:3067
+
+### Cadastrar um filme
+POST http://localhost:3067/create
+Content-Type: application/json
+
+{
+    "title": "Cidade de Deus",
+    "gender": "Crime",
+    "duration": 130,
+    "ageRating": 18
+}
+
+### Apagar um filme pelo id
+DELETE http://localhost:3067/delete/12
+
+### Atualizar um filme pelo id
+PUT http://localhost:3067/update/1
+Content-Type: application/json
+
+{
+    "title": "Matrix",
+    "gender": "Ficção Científica",
+    "duration": 136,
+    "ageRating": 14
+}
