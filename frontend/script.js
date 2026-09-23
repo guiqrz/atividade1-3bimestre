@@ -3,6 +3,13 @@
 const API_URL = "https://atividade1-3bimestre-delta.vercel.app"
 
 const sectionFilmes = document.querySelector(".filmes")
+const setaAnterior = document.querySelector(".seta-anterior")
+const setaProxima = document.querySelector(".seta-proxima")
+const botaoPesquisar = document.getElementById("botaoPesquisar")
+const campoPesquisa = document.getElementById("campoPesquisa")
+
+// Guarda a última lista vinda da API, para filtrar localmente sem nova requisição
+let filmesCarregados = []
 
 /**
  * Escapa caracteres especiais antes de jogar o texto no HTML,
@@ -17,23 +24,23 @@ function escaparHtml(texto) {
     })
 }
 
-// Paletas de gradiente vibrante, no estilo "pôster", sorteadas por gênero
-const PALETAS_GRADIENTE = [
-    "linear-gradient(160deg, #ff9a5a 0%, #c23a6b 60%, #4a1e5c 100%)",
-    "linear-gradient(160deg, #4fd1c5 0%, #2b6f7a 60%, #14202e 100%)",
-    "linear-gradient(160deg, #a78bfa 0%, #6d3fc7 60%, #241946 100%)",
-    "linear-gradient(160deg, #fbbf24 0%, #d9622b 60%, #3a1a1a 100%)",
-    "linear-gradient(160deg, #34d399 0%, #1f7a5c 60%, #0f2f28 100%)",
-    "linear-gradient(160deg, #60a5fa 0%, #3b4fc7 60%, #1a1a4a 100%)"
+// Cores de tecido de poltrona (clara/escura), sorteadas por gênero
+const PALETAS_POLTRONA = [
+    ["#c2534a", "#7a2f28"],
+    ["#4a8a7a", "#245248"],
+    ["#7a6bc2", "#453a7a"],
+    ["#c28a3f", "#7a5620"],
+    ["#4a7ac2", "#28477a"],
+    ["#8a4a6b", "#4a2438"]
 ]
 
 /**
- * Escolhe um gradiente de forma determinística a partir do gênero,
- * assim o mesmo gênero sempre cai na mesma paleta.
+ * Escolhe um par de cores de tecido de forma determinística a partir do gênero,
+ * assim o mesmo gênero sempre cai na mesma poltrona.
  * @param {string} texto
- * @returns {string} gradiente CSS
+ * @returns {[string, string]} [cor clara, cor escura]
  */
-function escolherGradiente(texto) {
+function escolherPoltrona(texto) {
     const chave = String(texto ?? "")
     let hash = 0
 
@@ -41,29 +48,42 @@ function escolherGradiente(texto) {
         hash = (hash * 31 + chave.charCodeAt(i)) >>> 0
     }
 
-    return PALETAS_GRADIENTE[hash % PALETAS_GRADIENTE.length]
+    return PALETAS_POLTRONA[hash % PALETAS_POLTRONA.length]
 }
 
 /**
- * Monta o card de um filme, com botões de editar e apagar.
+ * Monta o card de um filme: poltrona de cinema com o cartão de conteúdo sentado nela.
  * @param {{id: number, title: string, gender: string, duration: number, ageRating: number}} filme
  * @returns {string} HTML do card
  */
 function montarCardFilme(filme) {
     const classificacao = filme.ageRating > 0 ? `${filme.ageRating} anos` : "Livre"
-    const gradiente = escolherGradiente(filme.gender)
+    const [tecido, tecidoEscuro] = escolherPoltrona(filme.gender)
 
     return `
-        <article class="filme" style="--gradiente: ${gradiente}">
-            <h2>${escaparHtml(filme.title)}</h2>
-            <p>${escaparHtml(filme.gender)}</p>
-            <p>${escaparHtml(filme.duration)} min · ${escaparHtml(classificacao)}</p>
-            <div class="acoes">
-                <a class="botao" href="editar.html?id=${filme.id}">Editar</a>
-                <button class="botao botao-apagar" data-id="${filme.id}">Apagar</button>
+        <article class="filme" style="--acento: ${tecido}; --acento-escuro: ${tecidoEscuro}">
+            <div class="poltrona">
+                <div class="bracos"></div>
+                <div class="encosto"></div>
+                <div class="assento"></div>
+            </div>
+            <div class="cartao">
+                <h2>${escaparHtml(filme.title)}</h2>
+                <p>${escaparHtml(filme.gender)}</p>
+                <p>${escaparHtml(filme.duration)} min · ${escaparHtml(classificacao)}</p>
+                <div class="acoes">
+                    <a class="botao" href="editar.html?id=${filme.id}">Editar</a>
+                    <button class="botao botao-apagar" data-id="${filme.id}">Apagar</button>
+                </div>
             </div>
         </article>
     `
+}
+
+// Renderiza uma lista de filmes na tela
+function renderizarFilmes(filmes) {
+    sectionFilmes.innerHTML = filmes.map(montarCardFilme).join("")
+    centralizarSeCouber()
 }
 
 // Acessa a rota GET do backend e exibe os filmes na tela
@@ -75,9 +95,8 @@ async function buscarFilmes() {
             throw new Error(`O servidor respondeu com status ${resposta.status}`)
         }
 
-        const filmes = await resposta.json()
-
-        sectionFilmes.innerHTML = filmes.map(montarCardFilme).join("")
+        filmesCarregados = await resposta.json()
+        renderizarFilmes(filmesCarregados)
     } catch (erro) {
         // Falha aparece só no console, sem poluir a tela do usuário.
         console.error("Erro ao buscar os filmes:", erro)
@@ -109,6 +128,57 @@ sectionFilmes.addEventListener("click", (evento) => {
     if (!botao) return
 
     apagarFilme(botao.dataset.id)
+})
+
+// Centraliza os cards quando eles cabem todos na largura visível, sem precisar de scroll
+function centralizarSeCouber() {
+    const cabemTodos = sectionFilmes.scrollWidth <= sectionFilmes.clientWidth + 1
+    sectionFilmes.style.justifyContent = cabemTodos ? "center" : "flex-start"
+}
+
+window.addEventListener("resize", centralizarSeCouber)
+
+// Navega o carrossel pelas setas, rolando a largura de um card por vez
+function rolarCarrossel(direcao) {
+    const card = sectionFilmes.querySelector(".filme")
+    const distancia = card ? card.getBoundingClientRect().width + 22 : 240
+
+    sectionFilmes.scrollBy({ left: direcao * distancia, behavior: "smooth" })
+}
+
+setaAnterior.addEventListener("click", () => rolarCarrossel(-1))
+setaProxima.addEventListener("click", () => rolarCarrossel(1))
+
+// Abre/fecha o campo de pesquisa; ao fechar, limpa a busca e mostra tudo de novo
+botaoPesquisar.addEventListener("click", () => {
+    const abrindo = !campoPesquisa.classList.contains("aberta")
+
+    campoPesquisa.classList.toggle("aberta", abrindo)
+    botaoPesquisar.setAttribute("aria-expanded", String(abrindo))
+
+    if (abrindo) {
+        campoPesquisa.focus()
+    } else {
+        campoPesquisa.value = ""
+        renderizarFilmes(filmesCarregados)
+    }
+})
+
+// Filtra os filmes já carregados por título ou gênero, conforme o usuário digita
+campoPesquisa.addEventListener("input", () => {
+    const termo = campoPesquisa.value.trim().toLowerCase()
+
+    if (!termo) {
+        renderizarFilmes(filmesCarregados)
+        return
+    }
+
+    const filtrados = filmesCarregados.filter((filme) =>
+        String(filme.title).toLowerCase().includes(termo) ||
+        String(filme.gender).toLowerCase().includes(termo)
+    )
+
+    renderizarFilmes(filtrados)
 })
 
 buscarFilmes()

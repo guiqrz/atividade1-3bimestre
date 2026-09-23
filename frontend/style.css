@@ -1,10 +1,13 @@
 :root {
-    --bg: #eef0f4;
-    --ink: #14151a;
-    --ink-soft: #5b5e6b;
-    --card-radius: 28px;
+    --bg: #f7f7f6;
+    --paper: #ffffff;
+    --ink: #1c1c1a;
+    --ink-soft: #86847e;
+    --line: #e4e2dd;
+    --card-radius: 20px;
     --pill-radius: 999px;
-    --shadow: 0 20px 40px -18px rgba(20, 21, 26, 0.35);
+    --shadow-card: 0 8px 20px -12px rgba(28, 28, 26, 0.18);
+    --shadow-soft: 0 8px 20px -12px rgba(28, 28, 26, 0.15);
 }
 
 * {
@@ -13,17 +16,24 @@
 
 body {
     margin: 0;
-    padding: 40px 24px 80px;
-    background: var(--bg);
-    font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
+    min-height: 100vh;
+    padding: 48px 24px 64px;
+    display: flex;
+    flex-direction: column;
+    background:
+        radial-gradient(ellipse 60% 45% at 30% 15%, #fbfbfa 0%, transparent 70%),
+        radial-gradient(ellipse 55% 40% at 80% 10%, #f9faf9 0%, transparent 70%),
+        var(--bg);
+    font-family: "Quicksand", "Segoe UI", system-ui, -apple-system, sans-serif;
     color: var(--ink);
 }
 
 /* ---------- Cabeçalho ---------- */
 
 .topo {
-    max-width: 1180px;
-    margin: 0 auto 40px;
+    width: 100%;
+    max-width: 1280px;
+    margin: 0 auto 44px;
     display: flex;
     align-items: flex-end;
     justify-content: space-between;
@@ -33,16 +43,17 @@ body {
 
 .topo h1 {
     margin: 0;
-    font-size: 2rem;
+    font-size: 2.1rem;
     font-weight: 700;
-    letter-spacing: -0.02em;
+    letter-spacing: -0.01em;
     display: flex;
     flex-direction: column;
-    gap: 4px;
+    gap: 6px;
 }
 
 .assinatura {
-    font-size: 0.85rem;
+    font-family: "Segoe UI", system-ui, sans-serif;
+    font-size: 0.82rem;
     font-weight: 500;
     color: var(--ink-soft);
     letter-spacing: 0;
@@ -54,82 +65,254 @@ body {
     display: inline-flex;
     align-items: center;
     gap: 8px;
-    padding: 12px 22px;
+    padding: 11px 20px;
     border-radius: var(--pill-radius);
-    border: none;
-    background: #fff;
+    border: 1.5px solid var(--ink);
+    background: transparent;
     color: var(--ink);
-    font-size: 0.95rem;
+    font-size: 0.9rem;
     font-weight: 600;
     text-decoration: none;
     cursor: pointer;
-    box-shadow: 0 6px 16px -8px rgba(20, 21, 26, 0.3);
-    transition: transform 0.15s ease, box-shadow 0.15s ease;
+    transition: background 0.15s ease, color 0.15s ease;
 }
 
 .botao:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 10px 22px -8px rgba(20, 21, 26, 0.4);
-}
-
-.botao-primario {
     background: var(--ink);
-    color: #fff;
+    color: var(--paper);
 }
 
-/* ---------- Grade de filmes ---------- */
+.acoes-topo {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+/* ---------- Pesquisa ---------- */
+
+.busca {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.botao-icone {
+    flex: 0 0 auto;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    border: 1.5px solid var(--ink);
+    background: transparent;
+    color: var(--ink);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background 0.15s ease, color 0.15s ease;
+    position: relative;
+    z-index: 1;
+}
+
+.botao-icone:hover,
+.botao-icone[aria-expanded="true"] {
+    background: var(--ink);
+    color: var(--paper);
+}
+
+.campo-busca {
+    position: absolute;
+    right: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 44px;
+    height: 44px;
+    padding: 0 20px 0 44px;
+    border-radius: var(--pill-radius);
+    border: 1.5px solid var(--line);
+    background: var(--paper);
+    font-family: inherit;
+    font-size: 0.9rem;
+    color: var(--ink);
+    opacity: 0;
+    pointer-events: none;
+    transition: width 0.25s ease, opacity 0.2s ease;
+}
+
+.campo-busca.aberta {
+    width: 240px;
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.campo-busca:focus {
+    outline: none;
+    border-color: var(--ink);
+}
+
+
+/* ---------- Carrossel de filmes ---------- */
+
+.carrossel {
+    max-width: 1280px;
+    width: 100%;
+    margin: auto;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
 
 .filmes {
-    max-width: 1180px;
-    margin: 0 auto;
+    flex: 1;
     display: flex;
-    flex-wrap: wrap;
-    gap: 24px;
-    justify-content: flex-start;
+    gap: 28px;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scroll-behavior: smooth;
+    padding: 8px 4px;
+}
+
+.filmes::-webkit-scrollbar {
+    display: none;
+}
+
+.seta {
+    flex: 0 0 auto;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    border: 1.5px solid var(--line);
+    background: var(--paper);
+    color: var(--ink);
+    font-size: 1.1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: var(--shadow-soft);
+    transition: background 0.15s ease, color 0.15s ease;
+}
+
+.seta:hover {
+    background: var(--ink);
+    color: var(--paper);
 }
 
 .filme {
     position: relative;
-    width: 260px;
-    height: 360px;
-    border-radius: var(--card-radius);
-    padding: 22px;
+    flex: 0 0 auto;
+    align-self: flex-start;
+    width: 240px;
+    scroll-snap-align: start;
     display: flex;
     flex-direction: column;
-    justify-content: flex-end;
-    color: #fff;
-    overflow: hidden;
-    box-shadow: var(--shadow);
-    isolation: isolate;
+    align-items: center;
+    padding-top: 150px;
 }
 
-.filme::before {
-    content: "";
+/* Poltrona de cinema atrás do cartão, como uma base/moldura */
+.filme .poltrona {
+    --tecido: var(--acento, #8a1f2b);
+    --tecido-escuro: var(--acento-escuro, #5e1420);
     position: absolute;
-    inset: 0;
-    background: var(--gradiente, linear-gradient(160deg, #3a3d52, #14151a));
-    z-index: -2;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 190px;
+    z-index: 0;
 }
 
-.filme::after {
+.filme .poltrona .encosto {
+    width: 100%;
+    height: 168px;
+    border-radius: 26px 26px 10px 10px;
+    background: linear-gradient(160deg, var(--tecido) 0%, var(--tecido-escuro) 100%);
+    box-shadow: inset 0 -18px 26px -10px rgba(0, 0, 0, 0.35), inset 0 14px 18px -10px rgba(255, 255, 255, 0.18);
+    position: relative;
+}
+
+.filme .poltrona .encosto::after {
     content: "";
     position: absolute;
-    inset: 0;
-    background: linear-gradient(to top, rgba(0, 0, 0, 0.55) 0%, rgba(0, 0, 0, 0) 55%);
+    left: 50%;
+    top: 18px;
+    bottom: 18px;
+    width: 3px;
+    transform: translateX(-50%);
+    background: rgba(0, 0, 0, 0.18);
+    border-radius: 2px;
+}
+
+.filme .poltrona .bracos {
+    position: absolute;
+    top: 60px;
+    left: -18px;
+    right: -18px;
+    height: 64px;
     z-index: -1;
 }
 
+.filme .poltrona .bracos::before,
+.filme .poltrona .bracos::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    width: 34px;
+    height: 100%;
+    border-radius: 14px;
+    background: linear-gradient(160deg, var(--tecido) 0%, var(--tecido-escuro) 100%);
+    box-shadow: inset 0 -10px 14px -6px rgba(0, 0, 0, 0.35);
+}
+
+.filme .poltrona .bracos::before {
+    left: 0;
+}
+
+.filme .poltrona .bracos::after {
+    right: 0;
+}
+
+.filme .poltrona .assento {
+    width: 128%;
+    height: 44px;
+    margin: -6px auto 0;
+    border-radius: 12px;
+    background: linear-gradient(180deg, var(--tecido) 0%, var(--tecido-escuro) 100%);
+    box-shadow: 0 6px 12px -6px rgba(0, 0, 0, 0.25);
+    position: relative;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+/* Cartão de conteúdo, sentado sobre a poltrona */
+.filme .cartao {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    background: var(--paper);
+    border-radius: var(--card-radius);
+    box-shadow: var(--shadow-card);
+    padding: 20px;
+    text-align: center;
+    margin-top: 46px;
+}
+
 .filme h2 {
-    margin: 0 0 4px;
+    margin: 0 0 6px;
     font-size: 1.3rem;
     font-weight: 700;
+    line-height: 1.25;
     letter-spacing: -0.01em;
+    color: var(--ink);
+    min-height: calc(1.25em * 2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .filme p {
     margin: 0 0 2px;
-    font-size: 0.82rem;
-    color: rgba(255, 255, 255, 0.85);
+    font-size: 0.8rem;
+    color: var(--ink-soft);
 }
 
 .filme p strong {
@@ -137,30 +320,34 @@ body {
 }
 
 .filme .acoes {
-    margin-top: 16px;
+    margin-top: 14px;
     display: flex;
-    gap: 10px;
+    justify-content: center;
+    gap: 8px;
 }
 
 .filme .botao {
-    padding: 10px 18px;
-    font-size: 0.85rem;
-    background: rgba(255, 255, 255, 0.18);
-    color: #fff;
-    backdrop-filter: blur(6px);
-    box-shadow: none;
+    padding: 7px 14px;
+    font-size: 0.76rem;
+    border-color: var(--line);
+    color: var(--ink);
 }
 
 .filme .botao:hover {
-    background: rgba(255, 255, 255, 0.3);
+    background: var(--ink);
+    border-color: var(--ink);
+    color: var(--paper);
 }
 
 .filme .botao-apagar {
-    background: rgba(229, 72, 77, 0.35);
+    color: #b3413f;
+    border-color: #f0d9d8;
 }
 
 .filme .botao-apagar:hover {
-    background: rgba(229, 72, 77, 0.55);
+    background: #b3413f;
+    border-color: #b3413f;
+    color: #fff;
 }
 
 /* ---------- Formulários (cadastro / editar) ---------- */
@@ -171,10 +358,10 @@ body {
     display: flex;
     flex-direction: column;
     gap: 6px;
-    background: #fff;
+    background: var(--paper);
     padding: 32px;
     border-radius: var(--card-radius);
-    box-shadow: var(--shadow);
+    box-shadow: var(--shadow-soft);
 }
 
 .formulario label {
@@ -186,18 +373,18 @@ body {
 
 .formulario input {
     padding: 12px 14px;
-    border-radius: 12px;
-    border: 1.5px solid #e0e1e8;
+    border-radius: 10px;
+    border: 1.5px solid var(--line);
     font-size: 0.95rem;
     font-family: inherit;
     color: var(--ink);
-    background: #fafafc;
+    background: #fafaf8;
 }
 
 .formulario input:focus {
     outline: none;
     border-color: var(--ink);
-    background: #fff;
+    background: var(--paper);
 }
 
 .formulario button {
@@ -212,18 +399,32 @@ body {
 }
 
 .mensagem.erro {
-    color: #e5484d;
+    color: #b3413f;
 }
 
 .mensagem.sucesso {
-    color: #1a8a4a;
+    color: #2f7d4f;
 }
 
 /* ---------- Responsivo ---------- */
 
 @media (max-width: 640px) {
-    .filmes {
-        justify-content: center;
+    .filme {
+        width: 64vw;
+        padding-top: 120px;
+    }
+
+    .filme .poltrona {
+        width: 150px;
+    }
+
+    .filme .poltrona .encosto {
+        height: 134px;
+    }
+
+    .seta {
+        width: 36px;
+        height: 36px;
     }
 
     .topo {
@@ -231,6 +432,10 @@ body {
         text-align: center;
         flex-direction: column;
         align-items: center;
+    }
+
+    .campo-busca.aberta {
+        width: 62vw;
     }
 
     .formulario {
